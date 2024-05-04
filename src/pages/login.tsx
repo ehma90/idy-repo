@@ -9,7 +9,9 @@ import Link from "next/link";
 import { MdKeyboardBackspace } from "react-icons/md";
 
 const LoginPage = () => {
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    
+  };
   return (
     <Container className=" py-12 px-4">
       <div className="py-2"></div>

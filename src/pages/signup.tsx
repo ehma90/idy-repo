@@ -1,15 +1,61 @@
-'use client'
+"use client";
 
-import React from "react";
+import React, { useCallback, useState } from "react";
 import Container from "./reusable-components/container";
 import Label from "./reusable-components/label";
 import Input from "./reusable-components/input";
 import Button from "./reusable-components/button";
 import Link from "next/link";
 import { MdKeyboardBackspace } from "react-icons/md";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 const SignupPage = () => {
-  const handleSubmit = () => {};
+  const [passwordError, setPasswordError] = useState("");
+  const [contactValues, setContactValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const router = useRouter();
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setContactValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = useCallback(async (e: any) => {
+    e.preventDefault();
+    console.log(contactValues);
+
+    if (contactValues.password !== contactValues.confirmPassword) {
+      return setPasswordError("Password does not match");
+    }
+
+    setPasswordError("");
+
+    try {
+      const response = await axios.post("URL endpoint", {
+        firstName: contactValues?.firstName,
+        lastName: contactValues?.lastName,
+        userId: 1,
+      });
+      console.log(response.data);
+      if (response.status === 201) {
+        // Add function to get the response to state
+        router.push("/contact-lists");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
   return (
     <Container className=" py-12 px-4">
       <form
@@ -18,10 +64,7 @@ const SignupPage = () => {
         className=" space-y-4 max-w-2xl mx-auto"
       >
         <Button size="sm" variant="primary" href="/">
-          <MdKeyboardBackspace
-            size={28}
-            className=" text-white "
-          />
+          <MdKeyboardBackspace size={28} className=" text-white " />
         </Button>
 
         <h1 className="text-4xl font-bold text-center">Sign up</h1>
@@ -29,9 +72,10 @@ const SignupPage = () => {
           <Label htmlFor="first_name">First name</Label>
           <Input
             type="text"
-            name="first_name"
+            name="firstName"
             id="first_name"
             inputSize="md"
+            onChange={handleChange}
             placeholder="Enter your first name"
             className="w-full mt-2"
             required
@@ -41,9 +85,10 @@ const SignupPage = () => {
           <Label htmlFor="last_name">Last name</Label>
           <Input
             type="text"
-            name="last_name"
+            name="lastName"
             id="last_name"
             inputSize="md"
+            onChange={handleChange}
             placeholder="Enter your last name"
             className="w-full mt-2"
             required
@@ -57,6 +102,7 @@ const SignupPage = () => {
             name="email"
             id="email"
             inputSize="md"
+            onChange={handleChange}
             placeholder="youremail@example.com"
             className="w-full mt-2"
             required
@@ -68,6 +114,7 @@ const SignupPage = () => {
             type="text"
             name="password"
             id="password"
+            onChange={handleChange}
             inputSize="md"
             placeholder="Enter password"
             className="w-full mt-2"
@@ -78,14 +125,18 @@ const SignupPage = () => {
           <Label htmlFor="confirm_password">Confirm password</Label>
           <Input
             type="text"
-            name="confirm_password"
+            name="confirmPassword"
             id="confirm_password"
+            onChange={handleChange}
             inputSize="md"
             placeholder="Confirm password"
             className="w-full mt-2"
             required
           />
         </div>
+        <p className=" text-sm text-red-500 italic">
+          {passwordError.length > 0 && passwordError}
+        </p>
         <p className="pb-4 flex justify-end">
           Already have an account?{" "}
           <Link

@@ -1,17 +1,49 @@
-"use client"
-import React from "react";
+"use client";
+import React, { useCallback, useState } from "react";
 import Container from "./reusable-components/container";
 import Label from "./reusable-components/label";
 import Input from "./reusable-components/input";
 import Button from "./reusable-components/button";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 const CreateContact = () => {
-    const router = useRouter()
-  const handleSubmit = (e:any) => {
-    e.preventDefault()
-    router.push('/contact-lists')
+  const [getContactValues, setGetContactValues] = useState({
+    firstName: "",
+    lastName: "",
+    phoneNumber: "",
+  });
+  const router = useRouter();
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setGetContactValues((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
   };
+
+  const handleSubmit = useCallback(async (e: any) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "URL endpoint",
+        {
+          firstName: getContactValues?.firstName,
+          lastName: getContactValues?.lastName,
+          phoneNumber: getContactValues?.phoneNumber,
+          userId: 1,
+        }
+      );
+      console.log(response.data)
+      if(response.status === 201){
+        // Add function to get the response to state
+        router.push('/contact-lists')
+      };
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
 
   return (
     <Container className="py-12 px-4">
@@ -26,9 +58,10 @@ const CreateContact = () => {
           <Label htmlFor="first_name">First name</Label>
           <Input
             type="text"
-            name="first_name"
+            name="firstName"
             id="first_name"
             inputSize="md"
+            onChange={handleChange}
             placeholder="Enter your first name"
             className="w-full mt-2"
             required
@@ -38,9 +71,10 @@ const CreateContact = () => {
           <Label htmlFor="last_name">Last name</Label>
           <Input
             type="text"
-            name="last_name"
+            name="lastName"
             id="last_name"
             inputSize="md"
+            onChange={handleChange}
             placeholder="Enter your last name"
             className="w-full mt-2"
             required
@@ -50,11 +84,12 @@ const CreateContact = () => {
         <div>
           <Label htmlFor="phone_number">Phone number</Label>
           <Input
-            type="text"
-            name="phone_number"
+            type="number"
+            name="phoneNumber"
             id="phone_number"
             inputSize="md"
-            placeholder="youremail@example.com"
+            onChange={handleChange}
+            placeholder="+234_____"
             className="w-full mt-2"
             required
           />
